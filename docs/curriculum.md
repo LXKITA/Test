@@ -1,9 +1,35 @@
-# Ежедневная программа
+# DevOps за 60 дней: ежедневный учебный план
 
-Каждый урок занимает 4–5 часов: теория (60–90 минут), практика (2,5–3 часа),
-конспект и самопроверка (30–45 минут). Ссылки проверены при составлении курса
-13 июля 2026 года. Актуальный синтаксис всегда сверяйте с официальной
-документацией инструмента.
+План основан на [DevOps Roadmap](https://roadmap.sh/devops/) и адаптирован для
+уверенного пользователя Linux и сетей без опыта Git/Bash и с начальными
+знаниями Python/Docker. Срок — 60 дней по 4–5 часов ежедневно.
+
+Реалистичный результат — крепкая база стажёра/Junior и сквозной проект для
+портфолио, а не production-экспертиза уровня Middle.
+
+## Как работать с планом
+
+- 60–90 минут — материал и краткий конспект;
+- 2,5–3 часа — лабораторная работа;
+- 30–45 минут — фиксация результата и самопроверка;
+- день завершён только после получения указанного артефакта;
+- все работы храните в Git, но никогда не коммитьте пароли, токены, ключи,
+  `.env`, Terraform state и другие секреты;
+- основной стенд: Ubuntu 24.04 LTS, GitLab.com, Docker, Kind/Minikube;
+- облачные лабораторные выполняйте в Yandex Cloud с бюджетным уведомлением и
+  обязательным удалением ресурсов после занятия.
+
+Ссылки проверены 13 июля 2026 года. Актуальный синтаксис сверяйте с
+официальной документацией инструмента.
+
+## Что добавлено по российским вакансиям
+
+По актуальным вакансиям [HH.ru](https://hh.ru/vacancies/devops-engineer) и
+[Habr Career](https://career.habr.com/vacancies/1000166709) чаще всего
+повторяются Linux, Docker/Kubernetes, GitLab CI, Terraform/Ansible,
+Prometheus/Grafana, Bash/Python и облака. Пометкой **[Из вакансий]** отмечены
+дополнительные требования: Helm, registry, Argo CD/GitOps, Vault,
+PostgreSQL/Redis/Kafka, SLI/SLO, incident management и DevSecOps.
 
 ## Дни 1–7: Git и Bash
 
@@ -319,8 +345,8 @@
 ## Дни 50–60: итоговый проект
 
 ### День 50. Архитектура
-Прочитайте `docs/capstone.md`, нарисуйте собственную схему, threat model,
-acceptance criteria и ADR. Обоснуйте каждую технологию.
+Используйте раздел «Итоговый проект» ниже: нарисуйте собственную схему, threat
+model, acceptance criteria и ADR. Обоснуйте каждую технологию.
 
 ### День 51. Приложение
 Разберите `app/`, добавьте endpoint и тест. Артефакт: testable API с
@@ -356,9 +382,89 @@ MTTR и исправления в журнал экспериментов.
 
 ### День 59. Документация и интервью
 Дайте незнакомому человеку поднять проект по README. Ответьте вслух на вопросы
-из `docs/interview.md` и сравните навыки с десятью свежими вакансиями.
+из раздела «Самопроверка» ниже и сравните навыки с десятью свежими вакансиями.
 
 ### День 60. Защита
 С чистого стенда: deploy, изменение через MR, CI/GitOps, инцидент/rollback,
 restore, dashboard и postmortem. Запишите 10–15-минутное demo и составьте
 персональный backlog на 90 дней.
+
+## Контрольные точки
+
+- День 7: Git/Bash мини-проект.
+- День 21: приложение Nginx + Python API + PostgreSQL в Docker Compose.
+- День 28: идемпотентный Ansible и модульный Terraform.
+- День 42: Kubernetes-приложение с Helm, GitOps и observability.
+- День 49: SLO, security pipeline, postmortem и проверенный restore.
+- День 60: защита сквозного проекта.
+
+Если контрольная точка не пройдена, следующий день используйте для устранения
+конкретного пробела. Сокращать можно обзорные Redis/Kafka/Vault, но не Git,
+Bash, Docker, CI/CD, Kubernetes, Terraform/Ansible и monitoring.
+
+## Итоговый проект
+
+Состав проекта:
+
+```text
+Python API + PostgreSQL
+        ↓
+Docker/Compose → GitLab CI → Container Registry
+        ↓
+Terraform + Ansible → Kubernetes + Helm
+        ↓
+Argo CD → Prometheus/Grafana + Loki
+```
+
+Обязательные свойства:
+
+- API предоставляет `/health`, `/ready` и `/metrics`;
+- multi-stage image запускается non-root с read-only filesystem;
+- CI выполняет lint, tests, Trivy/secret scan и публикует image по commit SHA;
+- Terraform state и секреты находятся вне Git;
+- Ansible повторно запускается с `changed=0`;
+- Kubernetes использует probes, requests/limits, security context,
+  NetworkPolicy и минимальный service account;
+- Argo CD восстанавливает ручной drift, rollback выполняется через Git revert;
+- dashboard отображает traffic, errors и latency, alerts ведут в runbook;
+- определены availability/latency SLI, SLO 99,9% и error budget;
+- PostgreSQL backup восстановлен в чистое окружение;
+- проведён failure drill и заполнен blameless postmortem.
+
+## Самопроверка перед собеседованием
+
+Ответьте без командной строки, затем подтвердите ответ практикой:
+
+1. Чем working tree отличается от index и commit?
+2. Почему опубликованное изменение безопаснее отменять `revert`, а не reset?
+3. Как quoting в Bash влияет на пробелы и globbing?
+4. Чем exit code, stdout и stderr полезны в pipeline?
+5. Как systemd определяет порядок запуска и необходимость restart?
+6. Почему timeout и `connection refused` ведут к разным гипотезам?
+7. Как DNS, TCP, TLS и HTTP участвуют в открытии HTTPS URL?
+8. Чем container отличается от image и VM?
+9. Почему tag `latest` не обеспечивает воспроизводимость?
+10. Чем bind mount отличается от named volume?
+11. Какие quality/security gates должны предшествовать публикации image?
+12. Что означает идемпотентность Ansible?
+13. Что хранит Terraform state и почему он чувствителен?
+14. Как Deployment, ReplicaSet и Pod связаны reconciliation loop?
+15. Чем readiness probe отличается от liveness probe?
+16. Как Service находит Pods и зачем нужен Ingress controller?
+17. Почему Kubernetes Secret в base64 не является безопасным хранилищем?
+18. Что измеряют RED и USE, чем metric отличается от log?
+19. Как SLI, SLO, SLA и error budget связаны между собой?
+20. Чем mitigation отличается от root cause и corrective action?
+
+## Критерий завершения курса
+
+Курс завершён, если с чистого окружения вы способны без пошаговой подсказки:
+
+1. развернуть проект по собственной документации;
+2. внести изменение через branch и merge request;
+3. проследить CI → registry → GitOps → Kubernetes;
+4. обнаружить и устранить намеренно вызванный инцидент;
+5. выполнить rollback и доказать восстановление по метрикам;
+6. восстановить PostgreSQL из backup;
+7. объяснить архитектуру, ограничения лабораторного стенда и необходимые
+   улучшения для production.
