@@ -1,0 +1,35 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install reverse proxy configuration
+  ansible.builtin.template:
+    src: devops-api.conf.j2
+    dest: /etc/nginx/sites-available/devops-api.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Enable reverse proxy site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/devops-api.conf
+    dest: /etc/nginx/sites-enabled/devops-api.conf
+    state: link
+  notify: Reload Nginx
+
+- name: Disable default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload Nginx
+
+- name: Ensure Nginx is enabled and running
+  ansible.builtin.service:
+    name: nginx
+    enabled: true
+    state: started

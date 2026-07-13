@@ -1,0 +1,37 @@
+groups:
+  - name: devops-api
+    rules:
+      - alert: DevopsApiHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{path!="/metrics",status=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(http_requests_total{path!="/metrics"}[5m])), 0.001)
+          ) > 0.05
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "DevOps API: более 5% ответов 5xx"
+          runbook_url: "docs/runbooks/api.md#high-error-rate"
+
+      - alert: DevopsApiHighP95Latency
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(http_request_duration_seconds_bucket[5m]))
+          ) > 0.5
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "DevOps API: p95 latency выше 500 ms"
+          runbook_url: "docs/runbooks/api.md#high-latency"
+
+      - record: devops_api:availability_30d
+        expr: |
+          1 - (
+            sum(increase(http_requests_total{path!="/metrics",status=~"5.."}[30d]))
+            /
+            clamp_min(sum(increase(http_requests_total{path!="/metrics"}[30d])), 1)
+          )
