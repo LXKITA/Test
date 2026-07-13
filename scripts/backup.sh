@@ -13,7 +13,8 @@ fi
 readonly SOURCE="$1"
 readonly BACKUP_DIR="$2"
 readonly RETENTION_DAYS="${3:-7}"
-readonly TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+readonly TIMESTAMP
 readonly LOG_FILE="${BACKUP_DIR}/backup.log"
 
 if [[ ! -d "$SOURCE" ]]; then
